@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "title": "EXTRA ENGLISH",
+  "genre": "Comedy / Learning",
+  "mood": {
+    "palette": "pastell-indie",
+    "sceneElement": "clouds",
+    "typography": "arthouse"
+  },
+  "characters": [
+    {
+      "gender": "female",
+      "age": "adult",
+      "hairColor": "blond",
+      "hairStyle": "long",
+      "eyeColor": "blue",
+      "skinTone": "light",
+      "accessory": "none",
+      "expression": "smile",
+      "clothingStyle": "sweater",
+      "clothingPattern": "stripes",
+      "prop": "phone"
+    },
+    {
+      "gender": "male",
+      "age": "adult",
+      "hairColor": "brown",
+      "hairStyle": "short",
+      "eyeColor": "brown",
+      "skinTone": "medium",
+      "accessory": "glasses",
+      "expression": "neutral",
+      "clothingStyle": "collared",
+      "clothingPattern": "solid",
+      "prop": "book"
+    }
+  ],
+  "source": {
+    "subtitleEpisodeCount": 24,
+    "modelId": "cover-lora-v1"
+  }
+}
