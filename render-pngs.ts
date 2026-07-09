@@ -1,13 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { fileURLToPath } from "url";
-import { generateMultiCoverPlan } from "../lib/coverEngine";
-import { compileTypst, generateTypstCode } from "../lib/coverTypst";
+import { generateMultiCoverPlan } from "./src/lib/coverEngine";
+import { compileTypst, generateTypstCode } from "./src/lib/coverTypst";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serien-Metadaten: Beschreibungen triggern semantische Keywords der Engine.
 const SERIES_METADATA = [
 	{
 		key: "taskmaster-sweden",
@@ -60,22 +55,15 @@ const SERIES_METADATA = [
 	},
 ];
 
-const OUTPUT_DIR = path.resolve(
-	__dirname,
-	"../../../Vidiom/web/static/catalog-covers",
-);
+const ARTIFACT_DIR =
+	"/Users/jonathangadeaharder/.gemini/antigravity-ide/brain/eb0e6b87-7c0a-4527-9b89-87502e238433";
 
 async function main() {
-	console.log("Generating covers for all catalog series...");
-
-	if (!fs.existsSync(OUTPUT_DIR)) {
-		console.log(`Creating output directory: ${OUTPUT_DIR}`);
-		fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-	}
+	console.log(
+		"Generating high-fidelity PNG thumbnails for artifact gallery...",
+	);
 
 	for (const item of SERIES_METADATA) {
-		console.log(`Generating cover for: ${item.title}`);
-
 		const plan = await generateMultiCoverPlan(
 			item.title,
 			item.description,
@@ -83,22 +71,10 @@ async function main() {
 		);
 		const typstCode = generateTypstCode(plan.main, plan.characters, item.title);
 
-		const filename = `${item.key}.svg`;
-		const outputPath = path.join(OUTPUT_DIR, filename);
+		const outputPath = path.join(ARTIFACT_DIR, `${item.key}_typst.png`);
 		await compileTypst(typstCode, outputPath);
-
-		console.log(`Saved: ${outputPath}`);
-
-		console.log(`  Characters: ${plan.characters.length}`);
-		for (let i = 0; i < plan.characters.length; i++) {
-			const c = plan.characters[i];
-			console.log(
-				`    [Char ${i + 1}] Gender:${c.gender} Age:${c.age} Hair:${c.hairColorName}/${c.hairStyle} Expr:${c.expression} Prop:${c.prop}`,
-			);
-		}
+		console.log(`Saved thumbnail: ${outputPath}`);
 	}
-
-	console.log("All covers generated successfully!");
 }
 
 main().catch(console.error);
