@@ -11,13 +11,13 @@ const __dirname = path.dirname(__filename);
 
 // Helper to escape Typst strings
 function esc(str: string): string {
-	return str.replace(/["\\]/g, "\\$&");
+  return str.replace(/["\\]/g, "\\$&");
 }
 
 // Formats a single JS Recipe object into a Typst dictionary
 function formatRecipe(r: Recipe): string {
-	const p = r.palette;
-	return `(
+  const p = r.palette;
+  return `(
     gender: "${r.gender}",
     age: "${r.age}",
     body: "${r.body}",
@@ -50,15 +50,15 @@ function formatRecipe(r: Recipe): string {
 
 // Generates Typst code that imports coverforge.typ and calls render-cover
 export function generateTypstCode(
-	mainRecipe: Recipe,
-	characterRecipes: Recipe[],
-	titleText: string,
+  mainRecipe: Recipe,
+  characterRecipes: Recipe[],
+  titleText: string,
 ): string {
-	const mainFormatted = formatRecipe(mainRecipe);
-	const charsFormatted = characterRecipes.map(formatRecipe).join(",\n");
-	const templatePath = "/src/lib/coverforge.typ";
+  const mainFormatted = formatRecipe(mainRecipe);
+  const charsFormatted = characterRecipes.map(formatRecipe).join(",\n");
+  const templatePath = "/src/lib/coverforge.typ";
 
-	return `
+  return `
 #import "${templatePath}": render-cover
 
 #render-cover(
@@ -75,27 +75,27 @@ export function generateTypstCode(
 
 // Compiles generated Typst code to SVG/PNG using the local Typst CLI
 export async function compileTypst(
-	typstCode: string,
-	outputPath: string,
+  typstCode: string,
+  outputPath: string,
 ): Promise<string> {
-	const tmpDir = path.resolve(process.cwd(), ".temp-typst");
-	if (!fs.existsSync(tmpDir)) {
-		fs.mkdirSync(tmpDir, { recursive: true });
-	}
+  const tmpDir = path.resolve(process.cwd(), ".temp-typst");
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir, { recursive: true });
+  }
 
-	const inputPath = path.join(tmpDir, `cover-${Date.now()}.typ`);
-	fs.writeFileSync(inputPath, typstCode, "utf-8");
+  const inputPath = path.join(tmpDir, `cover-${Date.now()}.typ`);
+  fs.writeFileSync(inputPath, typstCode, "utf-8");
 
-	try {
-		// Run local typst compiler with --root set to project root
-		await execAsync(
-			`/opt/homebrew/bin/typst compile --root "${process.cwd()}" "${inputPath}" "${outputPath}"`,
-		);
-		return outputPath;
-	} finally {
-		// Clean up temporary Typst source file
-		if (fs.existsSync(inputPath)) {
-			fs.unlinkSync(inputPath);
-		}
-	}
+  try {
+    // Run local typst compiler with --root set to project root
+    await execAsync(
+      `/opt/homebrew/bin/typst compile --root "${process.cwd()}" "${inputPath}" "${outputPath}"`,
+    );
+    return outputPath;
+  } finally {
+    // Clean up temporary Typst source file
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
+    }
+  }
 }
