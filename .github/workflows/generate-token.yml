@@ -1,0 +1,51 @@
+name: Generate SonarQube Token
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-token:
+    runs-on: [self-hosted, maCOS, ARM64, VidiomTM]
+    steps:
+      - name: Generate token
+        run: |
+          BASE="http://localhost:9001"
+          
+          echo "=== Try default admin credentials ==="
+          RESPONSE=$(curl -sS -X POST "$BASE/api/user_tokens/generate" \
+            -u "admin:admin" \
+            -d "name=ci-token-$(date +%s)" \
+            -w "\n%{http_code}")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "HTTP: $HTTP_CODE"
+          echo "Body: $BODY"
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "=== Try old password ==="
+            RESPONSE=$(curl -sS -X POST "$BASE/api/user_tokens/generate" \
+              -u "admin:sonar" \
+              -d "name=ci-token-$(date +%s)" \
+              -w "\n%{http_code}")
+            HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+            BODY=$(echo "$RESPONSE" | head -n -1)
+            echo "HTTP: $HTTP_CODE"
+            echo "Body: $BODY"
+          fi
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            TOKEN=$(echo "$BODY" | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+            echo "Generated token: $TOKEN"
+            echo "$TOKEN" > /Users/jonathangadeaharder/.sonar_token
+            echo "Token saved to ~/.sonar_token"
+          else
+            echo "=== Check existing tokens ==="
+            curl -sS "$BASE/api/user_tokens/search" -u "admin:admin" -w "\nHTTP:%{http_code}\n"
+            echo ""
+            echo "=== Try with existing token as Bearer ==="
+            TOKEN=$(cat /Users/jonathangadeaharder/.sonar_token)
+            curl -sS "$BASE/api/system/info" -H "Authorization: Bearer $TOKEN" -w "\nHTTP:%{http_code}\n"
+            echo ""
+            echo "=== Try with existing token as basic auth ==="
+            curl -sS "$BASE/api/system/info" -u "$TOKEN:" -w "\nHTTP:%{http_code}\n"
+          fi
