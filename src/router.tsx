@@ -5,21 +5,21 @@ import { createStart } from "@tanstack/react-start";
 import { routeTree } from "./routeTree.gen";
 
 export function createRouter() {
-	const queryClient = new QueryClient({
-		defaultOptions: {
-			queries: {
-				staleTime: 60 * 1000,
-			},
-		},
-	});
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+      },
+    },
+  });
 
-	const router = createTanStackRouter({
-		routeTree,
-		defaultPreload: "intent",
-		context: { queryClient },
-	});
+  const router = createTanStackRouter({
+    routeTree,
+    defaultPreload: "intent",
+    context: { queryClient },
+  });
 
-	return router;
+  return router;
 }
 
 export const getRouter = createRouter;
