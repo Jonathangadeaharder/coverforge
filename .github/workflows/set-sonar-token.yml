@@ -3,17 +3,19 @@ name: Set SonarQube Token
 on:
   workflow_dispatch:
 
+permissions:
+  actions: write
+  contents: write
+
 jobs:
   set-token:
     runs-on: [self-hosted, macOS, ARM64, VidiomTM]
     steps:
-      - name: Set SONAR_TOKEN for all repos
+      - name: Set SONAR_TOKEN
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TOKEN=$(cat /Users/jonathangadeaharder/.sonar_token)
-          for repo in coverforge coverforge-trainer showrunner subtitle-correction; do
-            echo "Setting SONAR_TOKEN for $repo..."
-            gh secret set SONAR_TOKEN -R Jonathangadeaharder/$repo -b "$TOKEN"
-            echo "Done: $repo"
-          done
+          REPO=$(echo $GITHUB_REPOSITORY | cut -d/ -f2)
+          gh secret set SONAR_TOKEN -R "$GITHUB_REPOSITORY" -b "$TOKEN"
+          echo "Set SONAR_TOKEN for $GITHUB_REPOSITORY"
